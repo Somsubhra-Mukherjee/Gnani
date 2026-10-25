@@ -1,0 +1,82 @@
+# ==============================================================================
+# FreshRoute BI Agent - Comprehensive Git Ignore
+# ==============================================================================
+
+# Environment Secrets & Credentials (CRITICAL: NEVER COMMIT SECRETS)
+.env
+.env.local
+.env.*.local
+*.env
+!/.env.example
+*.pem
+*.key
+*.cert
+
+# Node.js / Frontend Dependencies & Logs
+node_modules/
+**/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm/
+
+# Frontend Build Output (Builds cleanly via `cd frontend && npm run build`)
+frontend/dist/
+.vite/
+
+# Python Bytecode & Runtime
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Python Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+env.bak/
+venv.bak/
+
+# Testing, Quality & Coverage
+.pytest_cache/
+**/.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+
+# Local Database Files (Database is re-seeded deterministically via seed_data.py)
+*.db
+*.sqlite
+*.sqlite3
+!backend/data/.gitkeep
+
+# Logs & Temporary Media Files
+*.log
+logs/
+*.mp3
+*.wav
+*.pcm
+/tmp/
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor Specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.sublime-project
+*.sublime-workspace

@@ -141,6 +141,94 @@ class BusinessCalculationEngine:
         }
 
     @staticmethod
+    def calculate_landed_unit_cost(production_cost: float, transportation_cost: float) -> Dict[str, Any]:
+        """Calculates landed unit cost = production_cost + transportation_cost."""
+        landed_cost = round(production_cost + transportation_cost, 2)
+        trans_pct = round((transportation_cost / landed_cost) * 100.0, 2) if landed_cost > 0 else 0.0
+        return {
+            "production_cost_inr": round(production_cost, 2),
+            "transportation_cost_inr": round(transportation_cost, 2),
+            "landed_cost_inr": landed_cost,
+            "transportation_share_pct": trans_pct
+        }
+
+    @staticmethod
+    def calculate_regional_unit_economics(
+        units_sold: int,
+        selling_price: float,
+        landed_cost: float
+    ) -> Dict[str, Any]:
+        """
+        Calculates revenue, landed COGS, and gross profit for a region:
+        Revenue = units * price
+        Landed COGS = units * landed_cost
+        Gross Profit = Revenue - Landed COGS
+        Unit Margin = Selling Price - Landed Cost
+        Gross Margin % = (Unit Margin / Selling Price) * 100
+        """
+        revenue = round(units_sold * selling_price, 2)
+        cogs = round(units_sold * landed_cost, 2)
+        gross_profit = round(revenue - cogs, 2)
+        unit_margin = round(selling_price - landed_cost, 2)
+        margin_pct = round((unit_margin / selling_price) * 100.0, 2) if selling_price > 0 else 0.0
+        return {
+            "units_sold": units_sold,
+            "selling_price_inr": round(selling_price, 2),
+            "landed_cost_inr": round(landed_cost, 2),
+            "unit_margin_inr": unit_margin,
+            "gross_margin_pct": margin_pct,
+            "total_revenue_inr": revenue,
+            "total_landed_cogs_inr": cogs,
+            "gross_profit_inr": gross_profit
+        }
+
+    @staticmethod
+    def simulate_regional_volume_reallocation(
+        source_region: str,
+        target_region: str,
+        source_volume: int,
+        source_price: float,
+        source_landed_cost: float,
+        target_volume: int,
+        target_price: float,
+        target_landed_cost: float,
+        reallocate_pct: float = 2.0
+    ) -> Dict[str, Any]:
+        """
+        Deterministic What-If Simulation:
+        Shifts X% of source region volume to target region.
+        Computes lost gross profit in source, gained gross profit in target,
+        and net arbitrage delta without making strategic policy assumptions.
+        """
+        shifted_units = int(round(source_volume * (reallocate_pct / 100.0)))
+        source_unit_margin = round(source_price - source_landed_cost, 2)
+        target_unit_margin = round(target_price - target_landed_cost, 2)
+
+        source_profit_loss = round(shifted_units * source_unit_margin, 2)
+        target_profit_gain = round(shifted_units * target_unit_margin, 2)
+        net_profit_delta = round(target_profit_gain - source_profit_loss, 2)
+        margin_spread = round(target_unit_margin - source_unit_margin, 2)
+
+        return {
+            "source_region": source_region,
+            "target_region": target_region,
+            "reallocation_percentage": reallocate_pct,
+            "shifted_units": shifted_units,
+            "source_unit_margin_inr": source_unit_margin,
+            "target_unit_margin_inr": target_unit_margin,
+            "margin_spread_inr": margin_spread,
+            "source_profit_lost_inr": source_profit_loss,
+            "target_profit_gained_inr": target_profit_gain,
+            "net_profit_delta_inr": net_profit_delta,
+            "is_accretive": net_profit_delta > 0,
+            "verdict_balance": (
+                f"Net profit gain of +₹{net_profit_delta:,.2f} (+₹{margin_spread:,.2f}/unit spread)"
+                if net_profit_delta > 0
+                else f"Net profit loss of -₹{abs(net_profit_delta):,.2f} (-₹{abs(margin_spread):,.2f}/unit spread)"
+            )
+        }
+
+    @staticmethod
     def structure_evidence_and_findings(
         observed_facts: List[str],
         calculated_metrics: Dict[str, Any],

@@ -296,6 +296,27 @@ VIEW_DEFINITIONS = [
     LEFT JOIN warehouses w ON sr.warehouse_id = w.id
     LEFT JOIN regions r ON w.region_id = r.id
     GROUP BY sr.cause, p.category, p.name, w.name, r.name, strftime('%Y-%m', sr.record_date);
+    """,
+    """
+    CREATE VIEW IF NOT EXISTS v_regional_product_profitability AS
+    SELECT 
+        r.name AS region_name,
+        r.code AS region_code,
+        p.sku,
+        p.name AS product_name,
+        p.category,
+        p.unit_cost_inr AS production_cost_inr,
+        ROUND(AVG(soi.unit_price_inr), 2) AS avg_selling_price_inr,
+        SUM(soi.quantity) AS total_units_sold,
+        ROUND(SUM(soi.line_total_inr), 2) AS total_revenue_inr,
+        ROUND(SUM(soi.line_cogs_inr), 2) AS total_cogs_inr,
+        ROUND(SUM(soi.line_total_inr - soi.line_cogs_inr), 2) AS gross_profit_inr,
+        ROUND((SUM(soi.line_total_inr - soi.line_cogs_inr) * 100.0 / NULLIF(SUM(soi.line_total_inr), 0)), 2) AS gross_margin_pct
+    FROM sales_order_items soi
+    JOIN sales_orders so ON soi.order_id = so.id
+    JOIN regions r ON so.region_id = r.id
+    JOIN products p ON soi.product_id = p.id
+    GROUP BY r.name, r.code, p.sku, p.name, p.category, p.unit_cost_inr;
     """
 ]
 

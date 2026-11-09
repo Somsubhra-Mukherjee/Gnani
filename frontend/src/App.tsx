@@ -3,7 +3,6 @@ import { WorkspaceState, VoiceState } from './types';
 import { api } from './services/api';
 import { Header } from './components/Header';
 import { WorkspaceCanvas } from './components/WorkspaceCanvas';
-import { ChatPanel } from './components/ChatPanel';
 import { TranscriptModal } from './components/TranscriptModal';
 import { Loader2 } from 'lucide-react';
 
@@ -66,29 +65,17 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-        {/* Main Collaborative Analytics Workspace Canvas (8 cols on lg) */}
-        <div className="lg:col-span-8">
-          {workspace && (
-            <WorkspaceCanvas
-              workspace={workspace}
-              voiceState={voiceState}
-              onTranscriptReady={handleTranscriptReady}
-              onVoiceStateChange={setVoiceState}
-            />
-          )}
-        </div>
-
-        {/* Executive Dialogue & Follow-up Panel (4 cols on lg) */}
-        <div className="lg:col-span-4">
-          <div className="sticky top-20">
-            <ChatPanel
-              history={workspace?.conversation_history || []}
-              onSendMessage={executeInvestigation}
-              isInvestigating={voiceState === 'investigating'}
-            />
-          </div>
-        </div>
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 lg:p-6">
+        {/* Full-Width Collaborative Analytics Workspace Canvas */}
+        {workspace && (
+          <WorkspaceCanvas
+            workspace={workspace}
+            voiceState={voiceState}
+            onTranscriptReady={handleTranscriptReady}
+            onVoiceStateChange={setVoiceState}
+            onSendMessage={executeInvestigation}
+          />
+        )}
       </main>
 
       {/* Transcript Review Modal */}

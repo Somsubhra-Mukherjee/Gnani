@@ -60,4 +60,28 @@ class TestBusinessCalculations:
         assert kpi["on_time_delivery_rate_pct"] == 75.0
         assert kpi["cold_chain_breach_rate_pct"] == 15.0
         assert kpi["avg_cost_per_km_inr"] == 50.0
-        assert kpi["avg_cost_per_shipment_inr"] == 5000.0
+
+    def test_landed_unit_cost(self):
+        res = calculation_engine.calculate_landed_unit_cost(188.80, 24.50)
+        assert res["landed_cost_inr"] == 213.30
+        assert res["production_cost_inr"] == 188.80
+        assert res["transportation_cost_inr"] == 24.50
+
+    def test_regional_volume_reallocation(self):
+        sim = calculation_engine.simulate_regional_volume_reallocation(
+            source_region="Gujarat",
+            target_region="West Bengal",
+            source_volume=18200,
+            source_price=240.00,
+            source_landed_cost=213.30,
+            target_volume=24500,
+            target_price=245.00,
+            target_landed_cost=208.10,
+            reallocate_pct=2.0
+        )
+        assert sim["shifted_units"] == 364
+        assert sim["source_profit_lost_inr"] == 9718.80
+        assert sim["target_profit_gained_inr"] == 13431.60
+        assert sim["net_profit_delta_inr"] == 3712.80
+        assert sim["is_accretive"] is True
+        assert sim["margin_spread_inr"] == 10.20

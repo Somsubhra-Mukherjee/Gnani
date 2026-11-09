@@ -120,6 +120,15 @@ export interface WorkspaceState {
   route_map: RouteMapData;
   evidence: EvidenceData;
   findings: FindingsData;
+  working_memo?: {
+    id: number;
+    timestamp: string;
+    query: string;
+    category: string;
+    details: string;
+    formula?: string;
+  }[];
+  active_scenario?: Record<string, any>;
   spoken_response?: SpokenResponse;
   conversation_history: { role: string; content: string }[];
 }

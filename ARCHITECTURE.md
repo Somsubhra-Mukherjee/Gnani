@@ -405,7 +405,16 @@ The agent dynamically switches its analytical lens based on the executive's ques
 
 ### Supported Investigation Pathways
 
-1. **Root-Cause Profit Breakdown:**
+1. **Interactive Conversational Math Chaining (Gujarat Landed Cost):**
+   - **Step 1 (Production Cost):** "What is the per piece production cost in Gujarat?" -> Returns ₹188.80 (reflecting input farmgate inflation).
+   - **Step 2 (Transport Cost):** "What is the per piece transportation cost in Gujarat?" -> Returns ₹24.50 on route `RT-BHW-AMD`.
+   - **Step 3 (Landed Cost):** "Add both numbers and give me the total cost" -> Deterministic addition: Landed Cost = ₹213.30/unit.
+   - **Step 4 (Volume & Revenue):** "How many pieces do I sell in Gujarat, and multiplying with price give me total revenue" -> 18,200 units at ₹240.00 each = ₹43,68,000 revenue with ₹4,85,940 gross profit (11.1% margin).
+   - **Step 5 (West Bengal Comparison):** "Now give me the exact same numbers for West Bengal" -> Landed Cost ₹208.10 (Production ₹182.50 + Freight ₹25.60), 24,500 units sold at ₹245.00 = ₹60,02,500 revenue with ₹9,04,050 gross profit (15.1% margin).
+   - **Step 6 (What-If Volume Reallocation):** "If I reduce volume in Gujarat by 2% and add it to West Bengal, calculate the profit I lose and gain" -> Reallocates 364 units: Gujarat profit forfeited (-₹9,718.80) vs West Bengal profit realized (+₹13,431.60) -> Net arbitrage gain of **+₹3,712.80**.
+   - **Step 7 (Audit Memo Export):** One-click download of the complete session working memo as a PDF via ReportLab.
+
+2. **Root-Cause Profit Breakdown:**
    - **Target:** "Why did our profits decline in North India last quarter?"
    - **Findings:** North India dropped to -₹50.24L profit in August 2024.
    - **Drivers:** ₹26.85L spoilage from Delhi Central DC chiller coil breakdown + ₹18.5L emergency logistics surcharges from NH-44 highway flooding.

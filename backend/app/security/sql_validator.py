@@ -36,6 +36,7 @@ ALLOWED_TABLES: Set[str] = {
     # Reporting Views
     "v_monthly_regional_performance",
     "v_product_profitability",
+    "v_regional_product_profitability",
     "v_route_transportation_costs",
     "v_spoilage_summary"
 }

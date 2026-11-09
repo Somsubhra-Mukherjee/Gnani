@@ -14,6 +14,10 @@ export const EvidenceDrawer: React.FC<EvidenceDrawerProps> = ({ evidence }) => {
   const weatherCount = evidence?.weather_records?.length || 0;
   const webCount = evidence?.web_sources?.length || 0;
 
+  if (sqlCount === 0 && docsCount === 0 && weatherCount === 0 && webCount === 0) {
+    return null;
+  }
+
   return (
     <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-lg my-5">
       <div className="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">

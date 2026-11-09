@@ -26,7 +26,9 @@ class Settings(BaseSettings):
     GNANI_TTS_MODEL: str = "timbre-v2.5"
     GNANI_LLM_MODEL: str = "evon-v3.3"
     
-    # Fallback LLM (if testing with OpenAI or offline mode)
+    # Secondary / Cloud LLM Providers (Multi-Key Rotation & Free Tier Support)
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: str = "gemini-2.5-flash"
     OPENAI_API_KEY: Optional[str] = None
     OPENAI_MODEL: str = "gpt-4o"
     

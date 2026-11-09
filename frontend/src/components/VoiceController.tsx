@@ -193,33 +193,19 @@ export const VoiceController: React.FC<VoiceControllerProps> = ({
 
   return (
     <div className="flex flex-col items-center justify-center p-4">
-      <div className="relative group flex items-center gap-3">
-        {/* Animated Glow rings */}
-        {currentState === 'listening' && (
-          <>
-            <div className="absolute -inset-3 rounded-full bg-red-500/30 animate-ping opacity-75 duration-1000"></div>
-            <div className="absolute -inset-1 rounded-full bg-red-600/40 animate-pulse"></div>
-          </>
-        )}
-        {currentState === 'speaking' && (
-          <div className="absolute -inset-2 rounded-full bg-purple-500/40 animate-pulse"></div>
-        )}
-        {currentState === 'investigating' && (
-          <div className="absolute -inset-2 rounded-full bg-blue-500/30 animate-spin"></div>
-        )}
-
-        {/* Primary Microphone Button */}
+      <div className="relative flex items-center gap-3">
+        {/* Primary Microphone Button (Clean, no pulsing shadow animations) */}
         <button
           onClick={handleButtonClick}
           disabled={currentState === 'transcribing' || currentState === 'investigating'}
-          className={`relative z-10 flex items-center gap-3 px-8 py-4 rounded-full font-semibold text-base shadow-2xl transition-all duration-300 transform active:scale-95 ${
+          className={`relative z-10 flex items-center gap-3 px-8 py-4 rounded-full font-semibold text-base transition-colors ${
             currentState === 'listening'
-              ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-red-500/40 animate-pulse'
+              ? 'bg-red-600 text-white'
               : currentState === 'speaking'
-              ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-purple-500/30'
+              ? 'bg-purple-600 text-white'
               : currentState === 'transcribing' || currentState === 'investigating'
               ? 'bg-slate-800 text-slate-400 border border-slate-700 cursor-wait'
-              : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-700 text-white hover:shadow-blue-500/30 hover:shadow-xl hover:scale-105 border border-blue-400/30'
+              : 'bg-blue-600 hover:bg-blue-500 text-white border border-blue-400/30'
           }`}
         >
           {currentState === 'listening' ? (

@@ -79,5 +79,7 @@ class WorkspaceState(BaseModel):
     route_map: RouteMapData = RouteMapData()
     evidence: EvidenceData = EvidenceData()
     findings: FindingsData = FindingsData()
+    working_memo: List[Dict[str, Any]] = []
+    active_scenario: Optional[Dict[str, Any]] = None
     spoken_response: Optional[SpokenResponse] = None
     conversation_history: List[Dict[str, str]] = []

@@ -56,3 +56,15 @@ def test_sql_console_blocks_delete():
     data = response.json()
     assert data["success"] is False
     assert "Security Validation Rejected" in data["error"]
+
+def test_export_pdf_endpoint():
+    response = client.get("/api/workspace/export-pdf")
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/pdf"
+    assert len(response.content) > 1000
+
+def test_scratchpad_endpoint():
+    response = client.get("/api/workspace/scratchpad")
+    assert response.status_code == 200
+    data = response.json()
+    assert "entries" in data

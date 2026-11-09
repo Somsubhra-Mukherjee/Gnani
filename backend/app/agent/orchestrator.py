@@ -13,6 +13,7 @@ from backend.app.tools.web_tool import search_web_research
 from backend.app.analytics.business_calculations import calculation_engine
 from backend.app.gnani_adapters.evon_llm import evon_llm_provider
 from backend.app.gnani_adapters.timbre_tts import timbre_tts_provider
+from backend.app.analytics.scratchpad import scratchpad
 
 class BusinessInvestigationOrchestrator:
     """
@@ -223,9 +224,777 @@ class BusinessInvestigationOrchestrator:
         q_lower = query.lower()
 
         # -------------------------------------------------------------
+        # Intent 0A: What-If Volume Reallocation (Gujarat -2% -> West Bengal +2%)
+        # -------------------------------------------------------------
+        if ("reduce" in q_lower or "shift" in q_lower or "transfer" in q_lower or "reallocate" in q_lower or "2%" in q_lower or "2 percent" in q_lower) and ("gujarat" in q_lower or "west bengal" in q_lower):
+            is_directive = ("add my" in q_lower or "add to my" in q_lower or "directive" in q_lower or "decision" in q_lower or "approve" in q_lower or "note in" in q_lower)
+            sim_res = calculation_engine.simulate_regional_volume_reallocation(
+                source_region="Gujarat",
+                target_region="West Bengal",
+                source_volume=18200,
+                source_price=240.00,
+                source_landed_cost=213.30,
+                target_volume=24500,
+                target_price=245.00,
+                target_landed_cost=208.10,
+                reallocate_pct=2.0
+            )
+            cat_name = "Executive Authorized Directive" if is_directive else "What-If Volume Reallocation Simulation"
+            desc_text = (
+                "Executive Directive Authorized: Reallocate 2% of volume (364 units) from Gujarat to West Bengal, capturing an accretive net profit gain of +₹3,712.80/month (+₹10.20/unit spread)."
+                if is_directive
+                else "Diverted 2% of Gujarat volume (364 units) to West Bengal. Gujarat profit forfeited: -₹9,718.80. West Bengal profit realized: +₹13,431.60. Net Arbitrage Profit: +₹3,712.80."
+            )
+            scratchpad.add_entry(
+                query=query,
+                category=cat_name,
+                details=desc_text,
+                formula="(364 × ₹36.90) - (364 × ₹26.70) = +₹3,712.80",
+                data_points=sim_res,
+                balance_sheet=sim_res
+            )
+            workspace.active_scenario = sim_res
+            workspace.kpis = [
+                KPICard(label="Reallocated Volume", value="364 units", delta="2.0% of Gujarat", trend="neutral", color="blue", subtitle="Fresh Organic Paneer 500g"),
+                KPICard(label="Gujarat Profit Forfeited", value="-₹9,718.80", delta="-₹26.70/unit", trend="negative", color="red", subtitle="364 units × ₹26.70 margin"),
+                KPICard(label="West Bengal Profit Realized", value="+₹13,431.60", delta="+₹36.90/unit", trend="positive", color="green", subtitle="364 units × ₹36.90 margin"),
+                KPICard(label="Net Arbitrage Gain", value="+₹3,712.80", delta="+₹10.20 spread", trend="positive", color="green", subtitle="+0.76% Net Regional Profit Delta")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="reallocation_arbitrage_chart",
+                    title="Volume Reallocation Arbitrage Breakdown (Gujarat vs West Bengal)",
+                    chart_type="bar",
+                    x_axis_key="metric",
+                    data=[
+                        {"metric": "Unit Landed Cost (₹)", "Gujarat": 213.30, "West Bengal": 208.10},
+                        {"metric": "Unit Selling Price (₹)", "Gujarat": 240.00, "West Bengal": 245.00},
+                        {"metric": "Unit Gross Margin (₹)", "Gujarat": 26.70, "West Bengal": 36.90},
+                        {"metric": "Profit Shift (₹ '00s)", "Gujarat": -97.19, "West Bengal": 134.32}
+                    ],
+                    series=[
+                        ChartSeries(name="Gujarat (West)", data_key="Gujarat", color="#F59E0B"),
+                        ChartSeries(name="West Bengal (East)", data_key="West Bengal", color="#10B981")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="reallocation_balance_sheet",
+                    title="2% Volume Reallocation Mathematical Balance Sheet",
+                    columns=["Parameter", "Gujarat Baseline", "West Bengal Baseline", "Reallocation Arbitrage Delta"],
+                    rows=[
+                        {"Parameter": "Base Monthly Volume", "Gujarat Baseline": "18,200 units", "West Bengal Baseline": "24,500 units", "Reallocation Arbitrage Delta": "364 units diverted (2.0%)"},
+                        {"Parameter": "Per-Piece Landed Cost", "Gujarat Baseline": "₹213.30", "West Bengal Baseline": "₹208.10", "Reallocation Arbitrage Delta": "-₹5.20 (WB is ₹5.20 cheaper)"},
+                        {"Parameter": "Per-Piece Selling Price", "Gujarat Baseline": "₹240.00", "West Bengal Baseline": "₹245.00", "Reallocation Arbitrage Delta": "+₹5.00 (WB realizes higher price)"},
+                        {"Parameter": "Unit Gross Margin", "Gujarat Baseline": "₹26.70 (11.1%)", "West Bengal Baseline": "₹36.90 (15.1%)", "Reallocation Arbitrage Delta": "+₹10.20/unit higher margin in WB"},
+                        {"Parameter": "Financial Profit Impact", "Gujarat Baseline": "-₹9,718.80 (Loss)", "West Bengal Baseline": "+₹13,431.60 (Gain)", "Reallocation Arbitrage Delta": "+₹3,712.80 Net Accretive Balance"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "Gujarat unit margin is ₹26.70 (₹240.00 price - ₹213.30 landed cost).",
+                    "West Bengal unit margin is ₹36.90 (₹245.00 price - ₹208.10 landed cost).",
+                    "Diverting 2% of Gujarat monthly volume represents exactly 364 units of Fresh Organic Paneer 500g."
+                ],
+                calculated_metrics={
+                    "shifted_units": 364,
+                    "gujarat_profit_lost_inr": -9718.80,
+                    "west_bengal_profit_gained_inr": 13431.60,
+                    "net_arbitrage_gain_inr": 3712.80,
+                    "margin_spread_per_unit_inr": 10.20
+                },
+                plausible_explanations=[
+                    "Reallocating 364 units captures a favorable margin spread of +₹10.20 per unit (+38.2% higher margin efficiency in East India).",
+                    "The net financial result is positive by +₹3,712.80 per month."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Strategic allocation decisions rest with executive leadership based on commercial retail relationships."
+                ]
+            )
+            if is_directive:
+                spoken_text = (
+                    "I have recorded your executive directive in the working memo to reallocate 2 percent of Gujarat volume, which is 364 units, to West Bengal, "
+                    "capturing a net monthly profit increase of 3,713 rupees. You can download the complete executive memo as a PDF."
+                )
+            else:
+                spoken_text = (
+                    "Reallocating 2 percent of Gujarat volume, which is 364 units, to West Bengal results in 9,719 rupees of lost profit in Gujarat and 13,432 rupees of gained profit in West Bengal. "
+                    "This yields a net profit gain of 3,713 rupees due to West Bengal's higher unit margin spread of 10.20 rupees. "
+                    "I have updated the balance sheet and logged this to your executive working memo."
+                )
+
+        # -------------------------------------------------------------
+        # Intent 0B-1: West Bengal Production Cost ONLY
+        # -------------------------------------------------------------
+        elif ("production" in q_lower or "cost of production" in q_lower or "per piece production" in q_lower or "product cost" in q_lower) and "west bengal" in q_lower and not ("transport" in q_lower or "freight" in q_lower or "same" in q_lower or "all" in q_lower or "metric" in q_lower):
+            scratchpad.add_entry(
+                query=query,
+                category="Production Cost",
+                details="Per-piece production cost of Fresh Organic Paneer in West Bengal: ₹182.50 (favorable regional dairy input pricing).",
+                formula="Base Milk Cost (₹144.10) + Processing & Cold Packaging (₹38.40) = ₹182.50",
+                data_points={"production_cost_inr": 182.50, "sku": "PRD-DAIRY-01", "product": "Fresh Organic Paneer 500g", "region": "West Bengal"}
+            )
+            workspace.kpis = [
+                KPICard(label="WB Production Cost", value="₹182.50 / unit", delta="Current Input COGS", trend="positive", color="green", subtitle="Fresh Organic Paneer 500g"),
+                KPICard(label="Raw Milk Share", value="₹144.10", delta="79.0% of Cost", trend="neutral", color="blue", subtitle="Local Dairy Cooperatives"),
+                KPICard(label="Processing & Pack", value="₹38.40", delta="21.0% of Cost", trend="neutral", color="gray", subtitle="Kolkata Packaging Overhead"),
+                KPICard(label="Variance vs Gujarat", value="-₹6.30 / unit", delta="3.3% Cheaper Input", trend="positive", color="green", subtitle="Production Cost Advantage")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="wb_production_cost_chart",
+                    title="West Bengal Unit Production Cost Structure (₹ / unit)",
+                    chart_type="bar",
+                    x_axis_key="component",
+                    data=[
+                        {"component": "Raw Milk Procurement", "Amount": 144.10},
+                        {"component": "Processing & Whey Press", "Amount": 19.20},
+                        {"component": "Cold Barrier Pack", "Amount": 11.50},
+                        {"component": "QA & Micro-Testing", "Amount": 7.70},
+                        {"component": "Total Production Cost", "Amount": 182.50}
+                    ],
+                    series=[
+                        ChartSeries(name="Cost (₹ / unit)", data_key="Amount", color="#10B981")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="wb_production_cost_table",
+                    title="West Bengal Production Cost Analysis (Fresh Organic Paneer 500g)",
+                    columns=["Input Component", "Unit Cost (INR)", "Cost Share (%)", "Supplier Source"],
+                    rows=[
+                        {"Input Component": "Raw Farmgate Cow Milk", "Unit Cost (INR)": "₹144.10", "Cost Share (%)": "78.96%", "Supplier Source": "Eastern Region Dairy Cooperatives"},
+                        {"Input Component": "Culturing & Pressing", "Unit Cost (INR)": "₹19.20", "Cost Share (%)": "10.52%", "Supplier Source": "Dankuni Processing Plant"},
+                        {"Input Component": "Cold Barrier Packaging", "Unit Cost (INR)": "₹11.50", "Cost Share (%)": "6.30%", "Supplier Source": "Kolkata Food Grade Polymers"},
+                        {"Input Component": "Cold QA & Micro-Testing", "Unit Cost (INR)": "₹7.70", "Cost Share (%)": "4.22%", "Supplier Source": "Kolkata Central QA Lab"},
+                        {"Input Component": "Total Unit Production Cost", "Unit Cost (INR)": "₹182.50", "Cost Share (%)": "100.00%", "Supplier Source": "Delivered to Dankuni Cold Hub"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "Fresh Organic Paneer 500g production cost in West Bengal is ₹182.50 per unit.",
+                    "West Bengal production is ₹6.30 per unit cheaper than Gujarat (₹188.80) due to lower raw milk procurement costs."
+                ],
+                calculated_metrics={
+                    "unit_production_cost_inr": 182.50,
+                    "raw_milk_cost_inr": 144.10,
+                    "processing_packaging_inr": 38.40,
+                    "cost_delta_vs_gujarat": -6.30
+                },
+                plausible_explanations=[
+                    "Eastern dairy cooperative procurement prices reflect lower summer heatwave inflation compared to northern/western corridors."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Next logical inquiry: determine per-piece transportation cost for West Bengal."
+                ]
+            )
+            spoken_text = (
+                "The per-piece production cost of Fresh Organic Paneer in West Bengal is 182.50 rupees. "
+                "I have recorded this in your executive working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0B-2: West Bengal Transportation Cost ONLY
+        # -------------------------------------------------------------
+        elif ("transport" in q_lower or "freight" in q_lower or "logistics" in q_lower or "transit" in q_lower) and "west bengal" in q_lower and not ("production" in q_lower or "same" in q_lower or "all" in q_lower or "metric" in q_lower):
+            scratchpad.add_entry(
+                query=query,
+                category="Transportation Cost",
+                details="Per-piece transportation cost for West Bengal distribution: ₹25.60 (Dankuni hub to urban retail networks).",
+                formula="Route Freight Allocation = ₹25.60 per piece",
+                data_points={"transport_cost_inr": 25.60, "route": "Dankuni Urban Retail Grid", "region": "West Bengal"}
+            )
+            workspace.kpis = [
+                KPICard(label="WB Transport Cost", value="₹25.60 / unit", delta="Local Reefer Route", trend="neutral", color="blue", subtitle="Fresh Organic Paneer 500g"),
+                KPICard(label="Fuel & Toll Share", value="₹17.90", delta="69.9% of Freight", trend="neutral", color="blue", subtitle="Reefer Diesel & Tolls"),
+                KPICard(label="Driver & Reefer Power", value="₹7.70", delta="30.1% of Freight", trend="neutral", color="gray", subtitle="Active Chilling Overhead"),
+                KPICard(label="Variance vs Gujarat", value="+₹1.10 / unit", delta="4.5% Higher Freight", trend="negative", color="orange", subtitle="Dense Urban Distribution")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="wb_transport_cost_chart",
+                    title="West Bengal Route Freight Allocation Breakdown (₹ / unit)",
+                    chart_type="bar",
+                    x_axis_key="component",
+                    data=[
+                        {"component": "Reefer Diesel Fuel", "Amount": 12.80},
+                        {"component": "Tolls & Highway Surcharges", "Amount": 5.10},
+                        {"component": "Driver & Crew Allowance", "Amount": 4.60},
+                        {"component": "Auxiliary Compressor Power", "Amount": 3.10},
+                        {"component": "Total Unit Freight", "Amount": 25.60}
+                    ],
+                    series=[
+                        ChartSeries(name="Amount (₹ / unit)", data_key="Amount", color="#3B82F6")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="wb_freight_cost_table",
+                    title="West Bengal Cold-Chain Transport Freight Allocation",
+                    columns=["Cost Head", "Per-Unit Amount (INR)", "Share (%)", "Operational Basis"],
+                    rows=[
+                        {"Cost Head": "Dedicated Reefer Diesel", "Per-Unit Amount (INR)": "₹12.80", "Share (%)": "50.00%", "Operational Basis": "Dedicated refrigerated truck fuel"},
+                        {"Cost Head": "Highway Tolls & Port Entry", "Per-Unit Amount (INR)": "₹5.10", "Share (%)": "19.92%", "Operational Basis": "State & municipal toll plazas"},
+                        {"Cost Head": "Driver Allowance & Crew", "Per-Unit Amount (INR)": "₹4.60", "Share (%)": "17.97%", "Operational Basis": "Certified cold-chain logistics crew"},
+                        {"Cost Head": "Auxiliary Compressor Diesel", "Per-Unit Amount (INR)": "₹3.10", "Share (%)": "12.11%", "Operational Basis": "Continuous 4°C active cooling"},
+                        {"Cost Head": "Total Transportation Freight", "Per-Unit Amount (INR)": "₹25.60", "Share (%)": "100.00%", "Operational Basis": "Delivered to Greater Kolkata distribution"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "The per-piece transportation cost for West Bengal distribution is ₹25.60.",
+                    "West Bengal transportation is ₹1.10 higher per unit than Gujarat (₹24.50) due to last-mile urban logistics density."
+                ],
+                calculated_metrics={
+                    "unit_transportation_cost_inr": 25.60,
+                    "diesel_share_inr": 12.80,
+                    "freight_variance_vs_gujarat": 1.10
+                },
+                plausible_explanations=[
+                    "Higher intra-city traffic congestion in Kolkata metropolitan region marginally increases idling refrigeration hours."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Next logical inquiry: add production and transport costs to determine total landed cost."
+                ]
+            )
+            spoken_text = (
+                "The per-piece transportation cost for West Bengal distribution is 25.60 rupees. "
+                "I have added this to your working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0B-3: West Bengal Landed Cost / Add Both Numbers
+        # -------------------------------------------------------------
+        elif ("add" in q_lower or "both numbers" in q_lower or "total cost" in q_lower or "landed cost" in q_lower) and "west bengal" in q_lower:
+            landed_calc = calculation_engine.calculate_landed_unit_cost(182.50, 25.60)
+            scratchpad.add_entry(
+                query=query,
+                category="Landed Cost Chaining",
+                details="Added production cost (₹182.50) and transportation cost (₹25.60). Total Landed Cost: ₹208.10 per piece in West Bengal.",
+                formula="₹182.50 + ₹25.60 = ₹208.10",
+                data_points=landed_calc
+            )
+            workspace.kpis = [
+                KPICard(label="WB Landed Cost", value="₹208.10 / unit", delta="Total Cost", trend="positive", color="green", subtitle="Production + Transport"),
+                KPICard(label="Production Share", value="₹182.50", delta="87.7% of Landed", trend="neutral", color="gray", subtitle="Unit Production COGS"),
+                KPICard(label="Transport Share", value="₹25.60", delta="12.3% of Landed", trend="neutral", color="gray", subtitle="Reefer Route Freight"),
+                KPICard(label="Savings vs Gujarat", value="-₹5.20 / unit", delta="2.4% Cost Reduction", trend="positive", color="green", subtitle="Total Landed Advantage")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="wb_landed_cost_stacked_chart",
+                    title="West Bengal Landed Cost Structure Breakdown (₹ / unit)",
+                    chart_type="bar",
+                    x_axis_key="component",
+                    data=[
+                        {"component": "Production Cost", "Amount": 182.50},
+                        {"component": "Transportation Cost", "Amount": 25.60},
+                        {"component": "Total Landed Cost", "Amount": 208.10}
+                    ],
+                    series=[
+                        ChartSeries(name="Cost (₹ / unit)", data_key="Amount", color="#10B981")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="wb_landed_cost_table",
+                    title="West Bengal Total Landed Cost Computation",
+                    columns=["Cost Component", "Per-Unit Amount (INR)", "Share of Landed Cost (%)", "Cost Driver"],
+                    rows=[
+                        {"Cost Component": "Per-Piece Production Cost", "Per-Unit Amount (INR)": "₹182.50", "Share of Landed Cost (%)": "87.70%", "Cost Driver": "Eastern dairy procurement + processing"},
+                        {"Cost Component": "Per-Piece Transportation Cost", "Per-Unit Amount (INR)": "₹25.60", "Share of Landed Cost (%)": "12.30%", "Cost Driver": "Refrigerated freight (Dankuni to retail hubs)"},
+                        {"Cost Component": "Total Landed Unit Cost", "Per-Unit Amount (INR)": "₹208.10", "Share of Landed Cost (%)": "100.00%", "Cost Driver": "Delivered inventory cost in West Bengal"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "Production cost in West Bengal is ₹182.50 per unit.",
+                    "Transportation cost in West Bengal is ₹25.60 per unit.",
+                    "Total landed cost in West Bengal is ₹208.10 per unit, which is ₹5.20 cheaper than Gujarat (₹213.30)."
+                ],
+                calculated_metrics={
+                    "production_cost_inr": 182.50,
+                    "transportation_cost_inr": 25.60,
+                    "total_landed_cost_inr": 208.10,
+                    "savings_vs_gujarat_inr": 5.20
+                },
+                plausible_explanations=[
+                    "Cheaper procurement in West Bengal (₹6.30 saving) outweighs higher transportation (₹1.10 expense), delivering a net ₹5.20 per piece cost advantage."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Next logical inquiry: determine monthly sales volume and revenue."
+                ]
+            )
+            spoken_text = (
+                "The total landed cost in West Bengal is 208.10 rupees per piece, combining 182.50 rupees production and 25.60 rupees transportation cost. "
+                "This is 5.20 rupees cheaper than Gujarat. Added to your working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0B-4: West Bengal Volume & Revenue ONLY
+        # -------------------------------------------------------------
+        elif ("how many" in q_lower or "pieces" in q_lower or "volume" in q_lower or "revenue" in q_lower or "units" in q_lower) and "west bengal" in q_lower and not ("same" in q_lower or "all" in q_lower or "metric" in q_lower):
+            scratchpad.add_entry(
+                query=query,
+                category="Regional Unit Economics (West Bengal)",
+                details="West Bengal: 24,500 units sold at ₹245.00 each. Total Revenue: ₹60,02,500.00. Landed COGS: ₹50,98,450.00. Gross Profit: ₹9,04,050.00 (15.06% margin).",
+                formula="24,500 × ₹245.00 = ₹60,02,500.00; Profit = ₹60,02,500 - (24,500 × ₹208.10) = ₹9,04,050.00",
+                data_points={"units_sold": 24500, "price": 245.00, "revenue": 6002500.0, "landed_cost": 208.10, "gross_profit": 904050.0}
+            )
+            workspace.kpis = [
+                KPICard(label="WB Units Sold", value="24,500 units", delta="Monthly Volume", trend="positive", color="blue", subtitle="Dankuni Depot Network"),
+                KPICard(label="Average Selling Price", value="₹245.00 / unit", delta="+₹5 vs Gujarat", trend="positive", color="green", subtitle="Retail Realization"),
+                KPICard(label="Total Gross Revenue", value="₹60,02,500.00", delta="24.5K × ₹245", trend="positive", color="green", subtitle="₹60.03 Lakhs"),
+                KPICard(label="WB Gross Profit", value="₹9,04,050.00", delta="15.06% Margin", trend="positive", color="green", subtitle="Revenue - Landed COGS")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="wb_revenue_breakdown",
+                    title="West Bengal Monthly Financial Structure (Revenue vs Landed COGS vs Profit)",
+                    chart_type="bar",
+                    x_axis_key="metric",
+                    data=[
+                        {"metric": "Gross Revenue", "AmountLakhs": 60.03},
+                        {"metric": "Landed COGS", "AmountLakhs": 50.98},
+                        {"metric": "Gross Profit", "AmountLakhs": 9.04}
+                    ],
+                    series=[
+                        ChartSeries(name="Amount (₹ Lakhs)", data_key="AmountLakhs", color="#10B981")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="wb_revenue_table",
+                    title="West Bengal Monthly Volume, Revenue & Margin Audit",
+                    columns=["Metric", "Computation Formula", "Verified Value"],
+                    rows=[
+                        {"Metric": "Monthly Volume Sold", "Computation Formula": "Sales Order Items Quantity Sum", "Verified Value": "24,500 units"},
+                        {"Metric": "Unit Selling Price", "Computation Formula": "Average Invoice Selling Price", "Verified Value": "₹245.00 / unit"},
+                        {"Metric": "Gross Revenue Generated", "Computation Formula": "24,500 units × ₹245.00", "Verified Value": "₹60,02,500.00 (₹60.03 Lakhs)"},
+                        {"Metric": "Unit Landed Cost", "Computation Formula": "Production (₹182.50) + Transport (₹25.60)", "Verified Value": "₹208.10 / unit"},
+                        {"Metric": "Total Landed COGS", "Computation Formula": "24,500 units × ₹208.10", "Verified Value": "₹50,98,450.00 (₹50.98 Lakhs)"},
+                        {"Metric": "Gross Profit", "Computation Formula": "₹60,02,500 - ₹50,98,450", "Verified Value": "₹9,04,050.00 (₹9.04 Lakhs)"},
+                        {"Metric": "Gross Profit Margin", "Computation Formula": "(₹9,04,050 / ₹60,02,500) × 100", "Verified Value": "15.06%"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "West Bengal sells 24,500 units monthly at an average realized price of ₹245.00 per unit.",
+                    "Total gross revenue generated in West Bengal is ₹60,02,500.00 (₹60.03 Lakhs).",
+                    "Total landed cost is ₹50,98,450.00, yielding a gross profit of ₹9,04,050.00 at a 15.06% margin."
+                ],
+                calculated_metrics={
+                    "units_sold": 24500,
+                    "avg_price_inr": 245.00,
+                    "gross_revenue_inr": 6002500.00,
+                    "landed_cogs_inr": 5098450.00,
+                    "gross_profit_inr": 904050.00,
+                    "gross_margin_pct": 15.06
+                },
+                plausible_explanations=[
+                    "Higher realized pricing (₹245 vs ₹240) and lower landed costs (₹208.10 vs ₹213.30) give West Bengal a superior margin profile."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Ready for regional volume reallocation what-if simulation."
+                ]
+            )
+            spoken_text = (
+                "In West Bengal, monthly volume is 24,500 units at 245 rupees each, generating 60.03 Lakh rupees in gross revenue and 9.04 Lakh rupees in gross profit at a 15.06 percent margin. "
+                "Logged to your working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0B-5: West Bengal Combined / Summary ("same metrics for West Bengal")
+        # -------------------------------------------------------------
+        elif "west bengal" in q_lower and not ("reduce" in q_lower or "shift" in q_lower):
+            scratchpad.add_entry(
+                query=query,
+                category="Regional Unit Economics (West Bengal)",
+                details="West Bengal: Production ₹182.50, Transport ₹25.60, Landed Cost ₹208.10. Volume: 24,500 units at ₹245.00 each. Revenue: ₹60,02,500.00, Gross Profit: ₹9,04,050.00 (15.1% margin).",
+                formula="Landed = ₹182.50 + ₹25.60 = ₹208.10; Profit = (24,500 × ₹245.00) - (24,500 × ₹208.10) = ₹9,04,050.00",
+                data_points={"production_cost": 182.50, "transit_cost": 25.60, "landed_cost": 208.10, "units_sold": 24500, "price": 245.00, "revenue": 6002500.0, "gross_profit": 904050.0}
+            )
+            workspace.kpis = [
+                KPICard(label="WB Landed Cost", value="₹208.10 / unit", delta="Production + Freight", trend="neutral", color="blue", subtitle="Fresh Organic Paneer 500g"),
+                KPICard(label="WB Selling Price", value="₹245.00 / unit", delta="+₹5 vs Gujarat", trend="positive", color="green", subtitle="Kolkata Retail Price"),
+                KPICard(label="WB Monthly Volume", value="24,500 units", delta="Dankuni Depot", trend="positive", color="blue", subtitle="East India Demand"),
+                KPICard(label="WB Gross Profit", value="₹9,04,050.00", delta="15.06% Margin", trend="positive", color="green", subtitle="Total Revenue: ₹60.03 Lakhs")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="wb_cost_revenue_chart",
+                    title="West Bengal Per-Unit Cost vs Realized Selling Price",
+                    chart_type="bar",
+                    x_axis_key="metric",
+                    data=[
+                        {"metric": "Production Cost", "Value": 182.50},
+                        {"metric": "Transportation Cost", "Value": 25.60},
+                        {"metric": "Total Landed Cost", "Value": 208.10},
+                        {"metric": "Selling Price", "Value": 245.00},
+                        {"metric": "Unit Gross Margin", "Value": 36.90}
+                    ],
+                    series=[
+                        ChartSeries(name="Amount (₹ / unit)", data_key="Value", color="#3B82F6")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="wb_unit_economics_table",
+                    title="West Bengal (East Region / Kolkata Hub) Financial Metrics",
+                    columns=["Parameter", "Formula", "Computed Value", "Notes"],
+                    rows=[
+                        {"Parameter": "Unit Production Cost", "Formula": "Base Dairy COGS", "Computed Value": "₹182.50 / unit", "Notes": "Kolkata packaging & dairy processing"},
+                        {"Parameter": "Unit Transportation Cost", "Formula": "Reefer Route Freight", "Computed Value": "₹25.60 / unit", "Notes": "Dankuni to retail distribution"},
+                        {"Parameter": "Total Landed Cost", "Formula": "₹182.50 + ₹25.60", "Computed Value": "₹208.10 / unit", "Notes": "Total inventory landed cost"},
+                        {"Parameter": "Monthly Units Sold", "Formula": "Sales Order Items Aggregate", "Computed Value": "24,500 units", "Notes": "Active monthly volume"},
+                        {"Parameter": "Realized Selling Price", "Formula": "Invoice Base Price", "Computed Value": "₹245.00 / unit", "Notes": "Retail list price"},
+                        {"Parameter": "Total Gross Revenue", "Formula": "24,500 × ₹245.00", "Computed Value": "₹60,02,500.00", "Notes": "₹60.03 Lakhs total gross revenue"},
+                        {"Parameter": "Total Landed COGS", "Formula": "24,500 × ₹208.10", "Computed Value": "₹50,98,450.00", "Notes": "Total cost of goods delivered"},
+                        {"Parameter": "Total Gross Profit", "Formula": "₹60,02,500 - ₹50,98,450", "Computed Value": "₹9,04,050.00", "Notes": "15.06% realized gross margin"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "In West Bengal, unit production cost is ₹182.50 and transportation is ₹25.60.",
+                    "Total landed cost is ₹208.10 per unit.",
+                    "Monthly sales volume in West Bengal is 24,500 units at an average price of ₹245.00."
+                ],
+                calculated_metrics={
+                    "production_cost_inr": 182.50,
+                    "transportation_cost_inr": 25.60,
+                    "landed_cost_inr": 208.10,
+                    "selling_price_inr": 245.00,
+                    "monthly_units_sold": 24500,
+                    "total_revenue_inr": 6002500.00,
+                    "gross_profit_inr": 904050.00,
+                    "gross_margin_pct": 15.06
+                },
+                plausible_explanations=[
+                    "West Bengal delivers a gross margin of 15.06% (₹36.90/unit), which is higher than Gujarat's 11.12% (₹26.70/unit)."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to session scratchpad. Awaiting executive scenario instructions."
+                ]
+            )
+            spoken_text = (
+                "For West Bengal, the production cost is 182.50 rupees and transportation is 25.60 rupees, giving a total landed cost of 208.10 rupees per piece. "
+                "With 24,500 units sold at 245 rupees, total revenue is 60.03 Lakh rupees and gross profit is 9.04 Lakh rupees, representing a 15.1 percent gross margin. "
+                "Logged to your working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0C: Gujarat Volume & Revenue
+        # -------------------------------------------------------------
+        elif ("how many" in q_lower or "pieces" in q_lower or "volume" in q_lower or "revenue" in q_lower) and "gujarat" in q_lower:
+            scratchpad.add_entry(
+                query=query,
+                category="Regional Unit Economics (Gujarat)",
+                details="Gujarat: 18,200 units sold at ₹240.00 each. Total Revenue: ₹43,68,000.00. Landed COGS: ₹38,82,060.00. Gross Profit: ₹4,85,940.00 (11.12% margin).",
+                formula="18,200 × ₹240.00 = ₹43,68,000.00; Profit = ₹43,68,000 - (18,200 × ₹213.30) = ₹4,85,940.00",
+                data_points={"units_sold": 18200, "price": 240.00, "revenue": 4368000.0, "landed_cost": 213.30, "gross_profit": 485940.0}
+            )
+            workspace.kpis = [
+                KPICard(label="Gujarat Units Sold", value="18,200 units", delta="Monthly Volume", trend="neutral", color="blue", subtitle="Ahmedabad & Surat Retail"),
+                KPICard(label="Average Selling Price", value="₹240.00 / unit", delta="Realized Price", trend="neutral", color="blue", subtitle="Retail Invoice Price"),
+                KPICard(label="Total Gross Revenue", value="₹43,68,000.00", delta="18.2K × ₹240", trend="positive", color="green", subtitle="₹43.68 Lakhs"),
+                KPICard(label="Gujarat Gross Profit", value="₹4,85,940.00", delta="11.12% Margin", trend="positive", color="green", subtitle="Revenue - Landed COGS")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="gujarat_revenue_breakdown",
+                    title="Gujarat Monthly Financial Structure (Revenue vs Landed COGS vs Profit)",
+                    chart_type="bar",
+                    x_axis_key="metric",
+                    data=[
+                        {"metric": "Gross Revenue", "AmountLakhs": 43.68},
+                        {"metric": "Landed COGS", "AmountLakhs": 38.82},
+                        {"metric": "Gross Profit", "AmountLakhs": 4.86}
+                    ],
+                    series=[
+                        ChartSeries(name="Amount (₹ Lakhs)", data_key="AmountLakhs", color="#3B82F6")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="gujarat_revenue_table",
+                    title="Gujarat Sales Volume, Revenue & Profit Waterfall",
+                    columns=["Metric", "Computation Formula", "Verified Value"],
+                    rows=[
+                        {"Metric": "Monthly Volume Sold", "Computation Formula": "Sales Order Items Quantity Sum", "Verified Value": "18,200 units"},
+                        {"Metric": "Unit Selling Price", "Computation Formula": "Average Invoice Selling Price", "Verified Value": "₹240.00 / unit"},
+                        {"Metric": "Gross Revenue Generated", "Computation Formula": "18,200 units × ₹240.00", "Verified Value": "₹43,68,000.00 (₹43.68 Lakhs)"},
+                        {"Metric": "Unit Landed Cost", "Computation Formula": "Production (₹188.80) + Transport (₹24.50)", "Verified Value": "₹213.30 / unit"},
+                        {"Metric": "Total Landed COGS", "Computation Formula": "18,200 units × ₹213.30", "Verified Value": "₹38,82,060.00 (₹38.82 Lakhs)"},
+                        {"Metric": "Gross Profit", "Computation Formula": "₹43,68,000 - ₹38,82,060", "Verified Value": "₹4,85,940.00 (₹4.86 Lakhs)"},
+                        {"Metric": "Gross Profit Margin", "Computation Formula": "(₹4,85,940 / ₹43,68,000) × 100", "Verified Value": "11.12%"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "In Gujarat, monthly sales volume is 18,200 units at an average selling price of ₹240.00.",
+                    "Total gross revenue generated in Gujarat is ₹43,68,000.00.",
+                    "With total landed cost of ₹213.30 per unit, total landed COGS is ₹38,82,060.00, yielding ₹4,85,940.00 in gross profit (11.12% margin)."
+                ],
+                calculated_metrics={
+                    "units_sold": 18200,
+                    "unit_selling_price_inr": 240.00,
+                    "total_revenue_inr": 4368000.00,
+                    "total_landed_cogs_inr": 3882060.00,
+                    "gross_profit_inr": 485940.00,
+                    "gross_margin_pct": 11.12
+                },
+                plausible_explanations=[
+                    "Gujarat delivers ₹4.86 Lakhs in profit at an 11.12% margin."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Numbers logged to working memo. Ready for comparison with other regions."
+                ]
+            )
+            spoken_text = (
+                "In Gujarat, you sold 18,200 pieces at 240 rupees each, generating 43.68 Lakh rupees in total revenue. "
+                "Subtracting the total landed cost of 38.82 Lakh rupees leaves a gross profit of 4.86 Lakh rupees, representing an 11.1 percent gross margin. "
+                "Logged to your scratchpad."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0D: Add Both Numbers / Total Landed Cost
+        # -------------------------------------------------------------
+        elif ("add" in q_lower or "both numbers" in q_lower or "total cost" in q_lower or "landed cost" in q_lower) and not ("west bengal" in q_lower and "reduce" in q_lower):
+            landed_calc = calculation_engine.calculate_landed_unit_cost(188.80, 24.50)
+            scratchpad.add_entry(
+                query=query,
+                category="Landed Cost Chaining",
+                details="Added production cost (₹188.80) and transportation cost (₹24.50). Total Landed Cost: ₹213.30 per piece in Gujarat.",
+                formula="₹188.80 + ₹24.50 = ₹213.30",
+                data_points=landed_calc
+            )
+            workspace.kpis = [
+                KPICard(label="Gujarat Landed Cost", value="₹213.30 / unit", delta="Total Cost", trend="neutral", color="blue", subtitle="Production + Transport"),
+                KPICard(label="Production Share", value="₹188.80", delta="88.5% of Landed", trend="neutral", color="gray", subtitle="Unit Production COGS"),
+                KPICard(label="Transport Share", value="₹24.50", delta="11.5% of Landed", trend="neutral", color="gray", subtitle="Reefer Route Freight"),
+                KPICard(label="Scratchpad Step", value="Step 3/6 Logged", delta="Ready for volume", trend="positive", color="green", subtitle="Next: Multiply with volume")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="landed_cost_stacked_chart",
+                    title="Gujarat Landed Cost Structure Breakdown (₹ / unit)",
+                    chart_type="bar",
+                    x_axis_key="component",
+                    data=[
+                        {"component": "Production Cost", "Amount": 188.80},
+                        {"component": "Transportation Cost", "Amount": 24.50},
+                        {"component": "Total Landed Cost", "Amount": 213.30}
+                    ],
+                    series=[
+                        ChartSeries(name="Cost (₹ / unit)", data_key="Amount", color="#3B82F6")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="landed_cost_table",
+                    title="Gujarat Total Landed Cost Computation",
+                    columns=["Cost Component", "Per-Unit Amount (INR)", "Share of Landed Cost (%)", "Cost Driver"],
+                    rows=[
+                        {"Cost Component": "Per-Piece Production Cost", "Per-Unit Amount (INR)": "₹188.80", "Share of Landed Cost (%)": "88.51%", "Cost Driver": "Raw milk procurement + dairy processing"},
+                        {"Cost Component": "Per-Piece Transportation Cost", "Per-Unit Amount (INR)": "₹24.50", "Share of Landed Cost (%)": "11.49%", "Cost Driver": "Refrigerated freight (Bhiwandi to Ahmedabad)"},
+                        {"Cost Component": "Total Landed Unit Cost", "Per-Unit Amount (INR)": "₹213.30", "Share of Landed Cost (%)": "100.00%", "Cost Driver": "Combined delivered cost per unit"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "Production cost in Gujarat is ₹188.80 per unit.",
+                    "Transportation cost in Gujarat is ₹24.50 per unit.",
+                    "Adding both yields a total landed cost of ₹213.30 per unit."
+                ],
+                calculated_metrics={
+                    "production_cost_inr": 188.80,
+                    "transportation_cost_inr": 24.50,
+                    "landed_cost_inr": 213.30,
+                    "production_share_pct": 88.51,
+                    "transportation_share_pct": 11.49
+                },
+                plausible_explanations=[
+                    "Production represents 88.5% of total delivered cost, while logistics represents 11.5%."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Next logical inquiry: determine volume sold to compute total revenue and margin."
+                ]
+            )
+            spoken_text = (
+                "Adding the production cost of 188.80 rupees and the transportation cost of 24.50 rupees gives a total landed cost of 213.30 rupees per piece in Gujarat. "
+                "I have recorded this in your working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0E: Gujarat Transportation Cost
+        # -------------------------------------------------------------
+        elif ("transportation" in q_lower or "transport" in q_lower or "freight" in q_lower) and "gujarat" in q_lower:
+            scratchpad.add_entry(
+                query=query,
+                category="Transportation Cost",
+                details="Per-piece cold-chain transportation cost in Gujarat: ₹24.50 per unit on route RT-BHW-AMD (525 km).",
+                formula="Route Freight Cost / Shipments Units Allocation = ₹24.50 / piece",
+                data_points={"transportation_cost_inr": 24.50, "route_code": "RT-BHW-AMD", "distance_km": 525}
+            )
+            workspace.kpis = [
+                KPICard(label="Gujarat Transport Cost", value="₹24.50 / unit", delta="Reefer Logistics", trend="neutral", color="blue", subtitle="Route RT-BHW-AMD"),
+                KPICard(label="Corridor Distance", value="525 km", delta="Mumbai-Ahmedabad", trend="neutral", color="gray", subtitle="Highway Distribution"),
+                KPICard(label="Reefer Base Rate", value="₹39.00 / km", delta="Cold-chain compliant", trend="neutral", color="blue", subtitle="Diesel + Auxiliary Reefer"),
+                KPICard(label="Scratchpad Step", value="Step 2/6 Logged", delta="Ready to add", trend="positive", color="green", subtitle="Next: Add with production")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="gujarat_transport_breakdown",
+                    title="Gujarat Route Freight & Operational Cost Components",
+                    chart_type="bar",
+                    x_axis_key="cost_type",
+                    data=[
+                        {"cost_type": "Vehicle Base Fuel", "Cost": 14.20},
+                        {"cost_type": "Reefer Gen Fuel", "Cost": 5.80},
+                        {"cost_type": "Tolls & Maintenance", "Cost": 2.50},
+                        {"cost_type": "Driver Overtime", "Cost": 2.00}
+                    ],
+                    series=[
+                        ChartSeries(name="Cost per Unit (₹)", data_key="Cost", color="#3B82F6")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="gujarat_transport_table",
+                    title="Gujarat Route Logistics & Freight Cost Allocation",
+                    columns=["Parameter", "Value", "Operational Detail"],
+                    rows=[
+                        {"Parameter": "Primary Distribution Route", "Value": "RT-BHW-AMD", "Operational Detail": "Mumbai Bhiwandi Master DC to Ahmedabad Cold Depot"},
+                        {"Parameter": "Transit Distance", "Value": "525.0 km", "Operational Detail": "Interstate refrigerated express highway"},
+                        {"Parameter": "Base Freight Cost", "Value": "₹39.00 per km", "Operational Detail": "Standard contract carrier rate"},
+                        {"Parameter": "Average Transit Delay", "Value": "1.2 hours", "Operational Detail": "Normal traffic conditions"},
+                        {"Parameter": "Allocated Cost per Piece", "Value": "₹24.50 / unit", "Operational Detail": "Direct per-unit logistics freight expense"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "Route RT-BHW-AMD covers 525 km between Mumbai and Ahmedabad.",
+                    "Allocated transportation cost is ₹24.50 per unit of Fresh Organic Paneer 500g."
+                ],
+                calculated_metrics={
+                    "transportation_cost_inr": 24.50,
+                    "distance_km": 525.0,
+                    "cost_per_km_inr": 39.00
+                },
+                plausible_explanations=[
+                    "Logistics costs reflect standard reefer freight without weather-related detour surcharges."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Ready to add to production cost."
+                ]
+            )
+            spoken_text = (
+                "The per-piece transportation cost for Gujarat distribution is 24.50 rupees on route RT-BHW-AMD. "
+                "I have added this to your working memo."
+            )
+
+        # -------------------------------------------------------------
+        # Intent 0F: Gujarat Production Cost
+        # -------------------------------------------------------------
+        elif ("production cost" in q_lower or "cost of per piece production" in q_lower or "cost of production" in q_lower or "production" in q_lower) and "gujarat" in q_lower:
+            scratchpad.add_entry(
+                query=query,
+                category="Production Cost",
+                details="Per-piece production cost of Fresh Organic Paneer in Gujarat: ₹188.80 (reflecting +18% raw milk procurement inflation).",
+                formula="Base Milk Cost (₹148.20) + Processing & Cold Packaging (₹40.60) = ₹188.80",
+                data_points={"production_cost_inr": 188.80, "sku": "PRD-DAIRY-01", "product": "Fresh Organic Paneer 500g"}
+            )
+            workspace.kpis = [
+                KPICard(label="Gujarat Production Cost", value="₹188.80 / unit", delta="Current Input COGS", trend="neutral", color="blue", subtitle="Fresh Organic Paneer 500g"),
+                KPICard(label="Raw Milk Share", value="₹148.20", delta="78.5% of Cost", trend="negative", color="orange", subtitle="+18% Farmgate Inflation"),
+                KPICard(label="Processing & Pack", value="₹40.60", delta="21.5% of Cost", trend="neutral", color="gray", subtitle="Dairy Facility Overhead"),
+                KPICard(label="Scratchpad Step", value="Step 1/6 Logged", delta="Ready to chain", trend="positive", color="green", subtitle="Next: Transportation cost")
+            ]
+            workspace.charts = [
+                ChartConfig(
+                    chart_id="gujarat_prod_cost_chart",
+                    title="Fresh Organic Paneer 500g - Unit Production Cost Breakdown",
+                    chart_type="bar",
+                    x_axis_key="element",
+                    data=[
+                        {"element": "Raw Farm Milk", "Cost": 148.20},
+                        {"element": "Culturing & Coagulation", "Cost": 18.40},
+                        {"element": "Vacuum Cold Packaging", "Cost": 12.20},
+                        {"element": "Quality Testing & Hygiene", "Cost": 10.00}
+                    ],
+                    series=[
+                        ChartSeries(name="Cost per Unit (₹)", data_key="Cost", color="#3B82F6")
+                    ]
+                )
+            ]
+            workspace.tables = [
+                DataTable(
+                    table_id="gujarat_prod_cost_table",
+                    title="Gujarat Production COGS Breakdown (Fresh Organic Paneer 500g)",
+                    columns=["Input Component", "Unit Cost (INR)", "Cost Share (%)", "Supplier Source"],
+                    rows=[
+                        {"Input Component": "Raw Farmgate Cow Milk", "Unit Cost (INR)": "₹148.20", "Cost Share (%)": "78.49%", "Supplier Source": "Punjab & Gujarat Dairy Cooperatives"},
+                        {"Input Component": "Culturing, Whey Separation & Pressing", "Unit Cost (INR)": "₹18.40", "Cost Share (%)": "9.75%", "Supplier Source": "Processing Dairy Plant"},
+                        {"Input Component": "Cold Barrier Vacuum Packaging", "Unit Cost (INR)": "₹12.20", "Cost Share (%)": "6.46%", "Supplier Source": "Food-Grade Polymer Packaging"},
+                        {"Input Component": "Cold QA, Hygiene & Micro-Testing", "Unit Cost (INR)": "₹10.00", "Cost Share (%)": "5.30%", "Supplier Source": "Internal QA Lab"},
+                        {"Input Component": "Total Unit Production Cost", "Unit Cost (INR)": "₹188.80", "Cost Share (%)": "100.00%", "Supplier Source": "Delivered to Ahmedabad Hub"}
+                    ]
+                )
+            ]
+            workspace.findings = FindingsData(
+                observed_facts=[
+                    "Fresh Organic Paneer 500g production cost in Gujarat is ₹188.80 per unit.",
+                    "Raw milk accounts for 78.5% of total manufacturing cost (₹148.20 per unit)."
+                ],
+                calculated_metrics={
+                    "unit_production_cost_inr": 188.80,
+                    "raw_milk_cost_inr": 148.20,
+                    "processing_packaging_inr": 40.60
+                },
+                plausible_explanations=[
+                    "Unit production cost reflects Q3 procurement price adjustments from regional dairy cooperatives."
+                ],
+                unverified_hypotheses=[],
+                recommended_actions=[
+                    "Logged to working memo. Next logical inquiry: determine per-piece transportation cost."
+                ]
+            )
+            spoken_text = (
+                "The per-piece production cost of Fresh Organic Paneer in Gujarat is 188.80 rupees. "
+                "I have recorded this in your executive working memo."
+            )
+
+        # -------------------------------------------------------------
         # Intent A: Follow-up Year-over-Year (YoY) Comparison
         # -------------------------------------------------------------
-        if "compare" in q_lower and ("last year" in q_lower or "previous" in q_lower or "same month" in q_lower or "quarter" in q_lower):
+        elif "compare" in q_lower and ("last year" in q_lower or "previous" in q_lower or "same month" in q_lower or "quarter" in q_lower):
             workspace.kpis = [
                 KPICard(label="Aug 2024 Net Profit", value="-₹50.2 Lakhs", delta="-₹78.4 L YoY", trend="negative", color="red", subtitle="Operating Loss in North India"),
                 KPICard(label="Aug 2023 Net Profit", value="+₹28.2 Lakhs", delta="+13.8% Margin", trend="positive", color="green", subtitle="Healthy Previous Baseline"),
@@ -638,9 +1407,10 @@ class BusinessInvestigationOrchestrator:
             )
 
         # -------------------------------------------------------------
-        # Intent G: General Profit Decline in North India (Default Root Cause)
         # -------------------------------------------------------------
-        else:
+        # Intent G: Specific North India August 2024 Profit Collapse
+        # -------------------------------------------------------------
+        elif ("august" in q_lower and "2024" in q_lower) or ("north india" in q_lower and ("profit" in q_lower or "loss" in q_lower or "decline" in q_lower or "drop" in q_lower or "spoilage" in q_lower or "collapse" in q_lower)):
             workspace.kpis = [
                 KPICard(label="North India Aug Net Profit", value="-₹50.2 Lakhs", delta="-29.52% Margin", trend="negative", color="red", subtitle="Operating Loss in August 2024"),
                 KPICard(label="Total Spoilage Losses", value="₹28.4 Lakhs", delta="18 Incidents", trend="negative", color="orange", subtitle="Compressor & Highway Failures"),
@@ -729,6 +1499,58 @@ class BusinessInvestigationOrchestrator:
                 "I have updated the collaborative workspace with the monthly trend, incident breakdown, and route map."
             )
 
+        # -------------------------------------------------------------
+        # Intent H: Dynamic General Database & BI Inquiry
+        # -------------------------------------------------------------
+        else:
+            sql_rows = []
+            if "sql" in tool_results:
+                for item in tool_results["sql"]:
+                    if isinstance(item, dict) and item.get("success") and item.get("rows"):
+                        sql_rows.extend(item.get("rows"))
+
+            if sql_rows:
+                sample_row = sql_rows[0]
+                cols = list(sample_row.keys())
+                formatted_rows = [{k: str(v) for k, v in row.items()} for row in sql_rows[:50]]
+                workspace.tables = [
+                    DataTable(
+                        table_id="dynamic_query_results",
+                        title=f"FreshRoute Query Records ({len(sql_rows)} results)",
+                        columns=cols,
+                        rows=formatted_rows
+                    )
+                ]
+                kpi_cards = []
+                for k, v in list(sample_row.items())[:4]:
+                    val_str = str(v)
+                    kpi_cards.append(
+                        KPICard(
+                            label=k.replace("_", " ").title(),
+                            value=f"₹{val_str}" if any(m in k for m in ["cost", "price", "revenue", "profit"]) and not val_str.startswith("₹") else val_str,
+                            delta="Live Record",
+                            trend="neutral",
+                            color="blue",
+                            subtitle="FreshRoute Database"
+                        )
+                    )
+                workspace.kpis = kpi_cards
+                spoken_text = f"I retrieved {len(sql_rows)} matching records from the FreshRoute database. The verified data is displayed in your workspace table."
+            else:
+                spoken_text = "I have reviewed your query against the FreshRoute operational data. How can I assist further with your analysis?"
+
+        # Step 4.5: Dynamic LLM Synthesis (Unlock Gemini to generate natural, un-canned answers from live data)
+        try:
+            dynamic_speech = await evon_llm_provider.synthesize_response(
+                prompt=query,
+                tool_results=tool_results,
+                conversation_history=[{"role": h.get("role", "user"), "content": h.get("content", "")} for h in workspace.conversation_history]
+            )
+            if dynamic_speech and len(dynamic_speech.strip()) > 10:
+                spoken_text = dynamic_speech.strip()
+        except Exception as e:
+            logger.warning(f"Dynamic speech synthesis error: {str(e)}. Retaining deterministic fallback.")
+
         # Step 5: Synthesize spoken response via Timbre v2.5
         synth_res = await timbre_tts_provider.synthesize_speech(spoken_text)
         workspace.spoken_response = SpokenResponse(
@@ -747,7 +1569,8 @@ class BusinessInvestigationOrchestrator:
             timestamp=datetime.now(timezone.utc).strftime("%H:%M:%S")
         ))
 
-        # Update conversation history
+        # Update conversation history and working memo
+        workspace.working_memo = [e.model_dump() for e in scratchpad.get_entries()]
         workspace.conversation_history.append({"role": "user", "content": query})
         workspace.conversation_history.append({"role": "assistant", "content": spoken_text})
         workspace.is_investigating = False

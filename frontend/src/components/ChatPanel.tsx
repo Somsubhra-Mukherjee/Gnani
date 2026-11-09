@@ -8,12 +8,14 @@ interface ChatPanelProps {
 }
 
 const SAMPLE_QUESTIONS = [
+  "What is the cost of per piece production of my product in Gujarat?",
+  "What is the cost of per piece transportation in Gujarat?",
+  "Add both numbers and give me the total cost",
+  "How many pieces do I sell in Gujarat, and multiplying with price give me total revenue",
+  "Now give me the exact same numbers for West Bengal",
+  "If I reduce the volume in Gujarat by 2% and add it to West Bengal, calculate the profit I lose and gain",
   "Why did our profits decline in North India last quarter?",
-  "Now compare that with the same month last year.",
-  "Which routes are causing the highest transportation costs?",
-  "Did weather conditions affect deliveries or spoilage?",
-  "Calculate the estimated financial loss and suggest what we should do next.",
-  "Which product saw volume growth but a drop in profit margins in 2024?"
+  "Did weather conditions affect deliveries or spoilage?"
 ];
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({ history, onSendMessage, isInvestigating }) => {
